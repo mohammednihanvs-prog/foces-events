@@ -3,10 +3,10 @@
 A fast, highly intuitive, and fully responsive events aggregator platform created for the **Forum of Computer Engineering Students (FOCES)**. This web application serves as a unified digital ecosystem where students can seamlessly discover, search, and initiate registration for upcoming technical workshops, bootcamps, and hackathons.
 
 ## 🚀 Live Deployment
-[👉 Click here to view the live deployment]([https://mohammednihanvs-prog.github.io/foces-events/])
+[👉 Click here to view the live deployment](https://mohammednihanvs-prog.github.io/foces-events/)
 
 ## 🎥 Project Demo Video
-[👉 Watch the Walkthrough on Google Drive / YouTube]([https://drive.google.com/file/d/1BX5rq-PQI5XAc4WgRZOdn1CCJoU7sIhA/view?usp=drive_link])
+[👉 Watch the Walkthrough on Google Drive](https://drive.google.com/file/d/1BX5rq-PQI5XAc4WgRZOdn1CCJoU7sIhA/view?usp=drive_link)
 
 ---
 
