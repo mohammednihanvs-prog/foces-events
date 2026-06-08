@@ -1,125 +1,216 @@
-// Sample dataset containing technical events
-const eventsData = [
-    {
-        id: 1,
-        name: "AI & Generative Models Hands-On Bootcamp",
-        date: "June 18, 2026",
-        category: "ai-ml",
-        description: "Dive deep into building dashboards and applications using Python, Streamlit, and modern GenAI SDK architectures.",
-        tag: "Workshop",
-        tagColor: "bg-purple-100 text-purple-700"
-    },
-    {
-        id: 2,
-        name: "ByteCraft National Hackathon 2026",
-        date: "July 02, 2026",
-        category: "development",
-        description: "A grueling 24-hour development challenge to solve real-world problems. Great prizes and mentorship pipelines await.",
-        tag: "Hackathon",
-        tagColor: "bg-amber-100 text-amber-700"
-    },
-    {
-        id: 3,
-        name: "DefCon Campus: Network Security Basics",
-        date: "July 15, 2026",
-        category: "cybersecurity",
-        description: "Master the basics of computer networks, system administration, defensive firewalls, and exploring tracking vulnerabilities.",
-        tag: "Seminar",
-        tagColor: "bg-rose-100 text-rose-700"
-    }
+// Baseline structural default dataset parameters to populate application state storage space fallback
+const defaultEvents = [
+    { id: 1717600000001, name: "Generative AI Systems Bootcamp", date: "2026-06-18T10:00", category: "ai-ml", description: "Build real-time dashboards mapping dynamic vector embedding structures via Python pipelines, Streamlit elements, and Gemini model contexts." },
+    { id: 1717600000002, name: "ByteCraft Hackathon Pipeline", date: "2026-07-02T09:00", category: "development", description: "A high-intensity 24-hour programming gauntlet mapping functional prototyping architectures to enterprise automation scenarios." },
+    { id: 1717600000003, name: "DefCon: Offensive Security Matrix", date: "2026-07-15T14:30", category: "cybersecurity", description: "Evaluate perimeter mitigation frameworks, trace packet routing variables, parse system vulnerabilities, and implement advanced firewalls." }
 ];
 
-// DOM Element Selectors
-const eventsGrid = document.getElementById('eventsGrid');
-const searchInput = document.getElementById('searchInput');
-const filterCategory = document.getElementById('filterCategory');
-const noEvents = document.getElementById('noEvents');
-const regModal = document.getElementById('regModal');
-const modalCard = document.getElementById('modalCard');
-const modalEventName = document.getElementById('modalEventName');
+// Initialize State Vector Storage Environment
+let applicationState = JSON.parse(localStorage.getItem('foces_events_stream')) || [...defaultEvents];
 
-// Render Function
-function displayEvents(events) {
-    eventsGrid.innerHTML = '';
+// DOM Selectors
+const dynamicGrid = document.getElementById('dynamicGrid');
+const emptyFallback = document.getElementById('emptyFallback');
+const extendedSearch = document.getElementById('extendedSearch');
+const categorySelector = document.getElementById('categorySelector');
+
+// Initial Window Bootstrap Trigger
+window.addEventListener('DOMContentLoaded', () => {
+    orchestrateUIRender(applicationState);
+    initiateCountdownTracker();
     
-    if (events.length === 0) {
-        eventsGrid.classList.add('hidden');
-        noEvents.classList.remove('hidden');
+    // Wire Input Event Listeners
+    extendedSearch.addEventListener('input', runPipelineFiltering);
+    categorySelector.addEventListener('change', runPipelineFiltering);
+});
+
+// Render Component Algorithm
+function orchestrateUIRender(dataset) {
+    dynamicGrid.innerHTML = '';
+    
+    if (!dataset || dataset.length === 0) {
+        dynamicGrid.classList.add('hidden');
+        emptyFallback.classList.remove('hidden');
         return;
     }
     
-    eventsGrid.classList.remove('hidden');
-    noEvents.classList.add('hidden');
+    dynamicGrid.classList.remove('hidden');
+    emptyFallback.classList.add('hidden');
 
-    events.forEach(event => {
-        const cardHTML = `
-            <div class="bg-white rounded-xl shadow-xs border border-gray-100 overflow-hidden hover:shadow-md transition-shadow duration-300 flex flex-col">
-                <div class="p-6 flex-grow">
-                    <div class="flex justify-between items-start gap-2 mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-md ${event.tagColor}">
-                            ${event.tag}
+    dataset.forEach(item => {
+        const readableDate = new Date(item.date).toLocaleString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const badgeConfigs = getCategoryBadgeMeta(item.category);
+
+        const eventCardHTML = `
+            <div class="bg-white rounded-2xl border border-slate-200/70 p-6 flex flex-col justify-between card-glow transition-all duration-300 relative group">
+                <button onclick="purgeEventEntry(${item.id})" class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition-all text-sm p-1" title="Purge Record">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                <div>
+                    <div class="flex items-center gap-2 mb-3.5">
+                        <span class="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-md ${badgeConfigs.color}">
+                            ${badgeConfigs.label}
                         </span>
-                        <div class="text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer">
-                            <i class="fa-regular fa-bookmark"></i>
-                        </div>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900 mb-2 leading-snug hover:text-blue-600 transition-colors cursor-pointer">
-                        ${event.name}
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug tracking-tight mb-2">
+                        ${item.name}
                     </h3>
-                    <div class="flex items-center gap-2 text-xs font-medium text-gray-500 mb-4">
-                        <i class="fa-regular fa-calendar text-blue-500"></i>
-                        <span>${event.date}</span>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-4 font-mono">
+                        <i class="fa-regular fa-calendar-check text-blue-500"></i>
+                        <span>${readableDate}</span>
                     </div>
-                    <p class="text-gray-600 text-sm leading-relaxed">
-                        ${event.description}
+                    <p class="text-slate-500 text-sm leading-relaxed text-justify">
+                        ${item.description}
                     </p>
                 </div>
-                <div class="px-6 pb-6 pt-2">
-                    <button onclick="handleRegister('${event.name}')" 
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200 flex items-center justify-center gap-2 shadow-xs cursor-pointer">
-                        <span>Register Now</span>
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
+                <div class="pt-6">
+                    <button onclick="triggerRegistrationAction('${item.name}')" class="w-full bg-slate-50 group-hover:bg-blue-600 text-slate-700 group-hover:text-white font-semibold py-2.5 rounded-xl text-xs transition-all duration-300 flex items-center justify-center gap-2 border border-slate-200/60 group-hover:border-transparent cursor-pointer shadow-xs">
+                        <span>Register Framework</span>
+                        <i class="fa-solid fa-arrow-right text-[10px] transform group-hover:translate-x-1 transition-transform"></i>
                     </button>
                 </div>
             </div>
         `;
-        eventsGrid.insertAdjacentHTML('beforeend', cardHTML);
+        dynamicGrid.insertAdjacentHTML('beforeend', eventCardHTML);
     });
 }
 
-// Search and Filter Logic
-function filterEvents() {
-    const searchTerm = searchInput.value.toLowerCase();
-    const activeCategory = filterCategory.value;
+// Meta Helper Object Utility
+function getCategoryBadgeMeta(category) {
+    switch(category) {
+        case 'ai-ml': return { label: '🤖 AI & ML Space', color: 'bg-purple-50 text-purple-600 border border-purple-100' };
+        case 'development': return { label: '💻 Web-App Dev', color: 'bg-amber-50 text-amber-600 border border-amber-100' };
+        case 'cybersecurity': return { label: '🛡️ Cyber Sec', color: 'bg-rose-50 text-rose-600 border border-rose-100' };
+        default: return { label: '⚙️ Technical Space', color: 'bg-slate-50 text-slate-600 border border-slate-100' };
+    }
+}
 
-    const filtered = eventsData.filter(event => {
-        const matchesSearch = event.name.toLowerCase().includes(searchTerm) || 
-                              event.description.toLowerCase().includes(searchTerm);
-        const matchesCategory = activeCategory === 'all' || event.category === activeCategory;
-        
-        return matchesSearch && matchesCategory;
+// State Filtering Engine
+function runPipelineFiltering() {
+    const query = extendedSearch.value.toLowerCase();
+    const targetScope = categorySelector.value;
+
+    const streamMatches = applicationState.filter(event => {
+        const textMatch = event.name.toLowerCase().includes(query) || event.description.toLowerCase().includes(query);
+        const typeMatch = targetScope === 'all' || event.category === targetScope;
+        return textMatch && typeMatch;
     });
 
-    displayEvents(filtered);
+    orchestrateUIRender(streamMatches);
 }
 
-// Event Listeners for Filters
-searchInput.addEventListener('input', filterEvents);
-filterCategory.addEventListener('change', filterEvents);
+// Append New Data Struct Event Action
+function createNewEvent(e) {
+    e.preventDefault();
+    
+    const newRecord = {
+        id: Date.now(),
+        name: document.getElementById('formName').value,
+        date: document.getElementById('formDate').value,
+        category: document.getElementById('formCategory').value,
+        description: document.getElementById('formDesc').value
+    };
 
-// Modal Operations
-function handleRegister(eventName) {
-    modalEventName.innerText = `Registered for ${eventName}!`;
-    regModal.classList.remove('opacity-0', 'pointer-events-none');
-    modalCard.classList.remove('scale-95');
-    modalCard.classList.add('scale-100');
+    applicationState.unshift(newRecord);
+    commitStateToMemory();
+    
+    // Reset and Close Views
+    document.getElementById('newEventForm').reset();
+    toggleModal('eventModal', false);
+    
+    // Notify Interaction Complete
+    triggerUINotification(`<i class="fa-solid fa-square-plus text-emerald-400"></i> Added "${newRecord.name}" successfully!`);
+    orchestrateUIRender(applicationState);
+    initiateCountdownTracker();
 }
 
-function closeModal() {
-    regModal.classList.add('opacity-0', 'pointer-events-none');
-    modalCard.classList.remove('scale-100');
-    modalCard.classList.add('scale-95');
+// Purge Structural Elements
+function purgeEventEntry(targetId) {
+    applicationState = applicationState.filter(record => record.id !== targetId);
+    commitStateToMemory();
+    triggerUINotification(`<i class="fa-solid fa-trash-can text-rose-400"></i> Event record has been deleted.`);
+    orchestrateUIRender(applicationState);
+    initiateCountdownTracker();
 }
 
-// Initial Render
-window.addEventListener('DOMContentLoaded', () => displayEvents(eventsData));
+// Reset System Filters
+function resetFilters() {
+    extendedSearch.value = '';
+    categorySelector.value = 'all';
+    orchestrateUIRender(applicationState);
+}
+
+// Commit State to Storage
+function commitStateToMemory() {
+    localStorage.setItem('foces_events_stream', JSON.stringify(applicationState));
+}
+
+// Modal View Mutator Toggles
+function toggleModal(modalId, makeVisible) {
+    const targetElement = document.getElementById(modalId);
+    const innerCard = targetElement.firstElementChild;
+    if (makeVisible) {
+        targetElement.classList.remove('opacity-0', 'pointer-events-none');
+        innerCard.classList.remove('scale-95');
+    } else {
+        targetElement.classList.add('opacity-0', 'pointer-events-none');
+        innerCard.classList.add('scale-95');
+    }
+}
+
+// Dynamic System Countdown Mechanism Logic Engine
+function initiateCountdownTracker() {
+    const cName = document.getElementById('countdownName');
+    const cDisplay = document.getElementById('countdownDisplay');
+    
+    // Compute sorted arrays for chronologically closest upcoming deadlines
+    const upcoming = applicationState
+        .filter(e => new Date(e.date).getTime() > Date.now())
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    if(upcoming.length === 0) {
+        cName.innerText = "No upcoming tracks found.";
+        cDisplay.innerText = "00d 00h 00m";
+        return;
+    }
+
+    const urgentTarget = upcoming[0];
+    cName.innerText = urgentTarget.name;
+
+    // Refresh display matrix logic every minute dynamically via context loop
+    if (window.activeCountdownInterval) clearInterval(window.activeCountdownInterval);
+
+    function updateMetrics() {
+        const temporalDelta = new Date(urgentTarget.date).getTime() - Date.now();
+        if(temporalDelta <= 0) {
+            initiateCountdownTracker();
+            return;
+        }
+        const d = Math.floor(temporalDelta / (1000 * 60 * 60 * 24));
+        const h = Math.floor((temporalDelta % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((temporalDelta % (1000 * 60 * 60)) / (1000 * 60));
+        cDisplay.innerText = `${d}d ${h.toString().padStart(2, '0')}h ${m.toString().padStart(2, '0')}m`;
+    }
+    
+    updateMetrics();
+    window.activeCountdownInterval = setInterval(updateMetrics, 60000);
+}
+
+// Interface Action Response Trigger System
+function triggerRegistrationAction(name) {
+    triggerUINotification(`<i class="fa-solid fa-circle-check text-blue-400"></i> Seat request captured for ${name}!`);
+}
+
+function triggerUINotification(htmlMessage) {
+    const notificationContainer = document.getElementById('toastNotification');
+    document.getElementById('toastMessage').innerHTML = htmlMessage;
+    
+    notificationContainer.classList.remove('translate-y-20', 'opacity-0');
+    
+    setTimeout(() => {
+        notificationContainer.classList.add('translate-y-20', 'opacity-0');
+    }, 4000);
+}
